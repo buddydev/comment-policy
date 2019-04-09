@@ -92,16 +92,38 @@ class Comment_Policy_Admin_Helper {
 
 		$section = $panel->add_section( 'general_settings', _x( 'General Settings', 'Admin settings', 'comment-policy' ) );
 
-		$section->add_field(
+		$section->add_fields(
 			array(
-				'name'    => 'comment_restriction_policy',
-				'label'   => _x( 'Restriction Policy', 'Admin settings', 'comment-policy' ),
-				'type'    => 'select',
-				'options' => array(
-					'all_comments' => __( 'All comments', 'comment-policy' ),
-					'per_post'     => __( 'Per post', 'comment-policy' ),
+				array(
+					'name'    => 'comment_restriction_policy',
+					'label'   => _x( 'Restriction Policy', 'Admin settings', 'comment-policy' ),
+					'type'    => 'select',
+					'options' => array(
+						'all_comments' => __( 'All comments', 'comment-policy' ),
+						'per_post'     => __( 'Per post', 'comment-policy' ),
+					),
+					'default' => 'per_post',
 				),
-				'default' => 'per_post',
+				array(
+					'name'    => 'show_comment_count_limit',
+					'label'   => _x( 'Show comment count limit', 'Admin settings', 'comment-policy' ),
+					'type'    => 'radio',
+					'options' => array(
+						1 => __( 'Yes', 'comment-policy' ),
+						0 => __( 'No', 'comment-policy' ),
+					),
+					'default' => 1,
+				),
+				array(
+					'name'    => 'show_remaining_comment_count_limit',
+					'label'   => _x( 'Show remaining comment count limit', 'Admin settings', 'comment-policy' ),
+					'type'    => 'radio',
+					'options' => array(
+						1 => __( 'Yes', 'comment-policy' ),
+						0 => __( 'No', 'comment-policy' ),
+					),
+					'default' => 1,
+				),
 			)
 		);
 

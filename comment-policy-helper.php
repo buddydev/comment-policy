@@ -38,6 +38,13 @@ class Comment_Policy_Helper {
 	private static $instance;
 
 	/**
+	 * User comments count
+	 *
+	 * @var int
+	 */
+	private static $user_comments_count = 0;
+
+	/**
 	 * Comment_Policy_Helper constructor.
 	 */
 	private function __construct() {
@@ -71,6 +78,11 @@ class Comment_Policy_Helper {
 			2
 		);
 
+		add_action(
+			'comment_form_logged_in_after',
+			array( $this, 'modify_comment_form' )
+		);
+
 		add_action( 'plugins_loaded', array( $this, 'load_admin' ), 9996 );
 	}
 
@@ -95,6 +107,33 @@ class Comment_Policy_Helper {
 		}
 
 		return $open;
+	}
+
+	/**
+	 * Add content before comment form
+	 */
+	public function modify_comment_form() {
+		$user_id = get_current_user_id();
+
+		// Return if user is not logged in or option not enabled.
+		if ( is_super_admin() || ! self::is_user_restricted( $user_id ) ) {
+			return;
+		}
+
+		$allowed_count = self::get_user_limit( get_current_user_id() );
+		$allowed_count = absint( $allowed_count );
+
+		if ( self::get_option( 'show_comment_count_limit' ) ) {
+			echo sprintf( '<label>%s<span>%d</span></label>', __( 'Comment limit: ', 'comment-policy' ), $allowed_count );
+		}
+
+		if ( self::get_option( 'show_remaining_comment_count_limit' ) && $allowed_count > self::$user_comments_count ) {
+			$remaining_count = $allowed_count - self::$user_comments_count;
+			echo sprintf( '<label>%s<span>%d</span></label>', __( 'Remaining comment limit: ', 'comment-policy' ), absint( $remaining_count ) );
+		}
+
+		// Reset to zero.
+		self::$user_comments_count = 0;
 	}
 
 	/**
@@ -139,6 +178,8 @@ class Comment_Policy_Helper {
 
 		$allowed_limit = self::get_user_limit( $user_id );
 		$comment_count = self::get_user_posted_comment_count( $user_id, $post_id );
+
+		self::$user_comments_count = $comment_count;
 
 		if ( $comment_count >= $allowed_limit ) {
 			$has_exceeded = true;
